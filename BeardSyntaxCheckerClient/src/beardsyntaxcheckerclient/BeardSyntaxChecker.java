@@ -19,7 +19,7 @@ public class BeardSyntaxChecker {
     
     private final ArrayList<String> fileData;
     private char legalSymbols[] = new char[5];
-    private enum errorType {
+    private enum ErrorType {
         ATOZ, PATTERNTHE, NEXTFIVELINES
     }
     
@@ -132,8 +132,7 @@ public class BeardSyntaxChecker {
                             argStack.push(lineChar);
                         }
                         if(!Character.isLetter(lineChar) && argStackTop == ' '){
-                            System.out.println("Line " + lineNo + 
-                                    ": Pattern \"the\" without proper arguments.");
+                            System.out.println(errorMessage(ErrorType.PATTERNTHE, lineNo));
                             theStack.clear();
                             argStack.clear();
                             theInStack = false;
@@ -145,8 +144,7 @@ public class BeardSyntaxChecker {
                         }
                         if(!Character.isDigit(lineChar) && 
                                 Character.isLetter(argStackTop)){
-                            System.out.println("Line " + lineNo + 
-                                    ": Pattern \"the\" without proper arguments.");
+                            System.out.println(errorMessage(ErrorType.PATTERNTHE, lineNo));
                             theStack.clear();
                             argStack.clear();
                             theInStack = false;
@@ -158,8 +156,7 @@ public class BeardSyntaxChecker {
                         }
                         if(!isLegalSymbol(lineChar) && 
                                 Character.isDigit(argStackTop)){
-                            System.out.println("Line " + lineNo + 
-                                    ": Pattern \"the\" without proper arguments.");
+                            System.out.println(errorMessage(ErrorType.PATTERNTHE, lineNo));
                             theStack.clear();
                             argStack.clear();
                             theInStack = false;
@@ -173,7 +170,7 @@ public class BeardSyntaxChecker {
                         }
                         if(!Character.isDigit(lineChar) && 
                                 isLegalSymbol(argStackTop)){
-                            System.out.println(errorMessage(PATTERNTHE, lineNo));
+                            System.out.println(errorMessage(ErrorType.PATTERNTHE, lineNo));
                             theStack.clear();
                             argStack.clear();
                             theInStack = false;
@@ -217,17 +214,20 @@ public class BeardSyntaxChecker {
         return isLegal;
     }
         
-    public String errorMessage(enum errorType, int lineNo){
+    public String errorMessage(ErrorType errorType, int lineNo){
+        String returnString = "";
+        
         switch(errorType){
             case ATOZ:
-                return "Line " + lineNo + ": \'z\' before preceding \'a\'";
+                returnString = "Line " + lineNo + ": \'z\' before preceding \'a\'";
                 break;
             case PATTERNTHE:
-                return "Line " + lineNo + ": Pattern \"the\" without proper arguments.";
+                returnString = "Line " + lineNo + ": Pattern \"the\" without proper arguments.";
                 break;
             default:
                 break;
         }
+        return returnString;
     }
     
     public String toString(){
