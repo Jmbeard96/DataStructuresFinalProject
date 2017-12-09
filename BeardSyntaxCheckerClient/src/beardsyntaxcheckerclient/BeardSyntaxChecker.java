@@ -7,7 +7,6 @@ package beardsyntaxcheckerclient;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.EmptyStackException;
 import java.util.Iterator;
 import java.util.Scanner;
 import java.util.Stack;
