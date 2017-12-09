@@ -18,9 +18,16 @@ import java.util.Stack;
 public class BeardSyntaxChecker {
     
     private final ArrayList<String> fileData;
+    private char legalSymbols[] = new char[5];
     
     public BeardSyntaxChecker(){
         fileData = new ArrayList();
+        legalSymbols[0] = '#';
+        legalSymbols[1] = '@';
+        legalSymbols[2] = '&';
+        legalSymbols[3] = '*';
+        legalSymbols[4] = '!';
+        
     }
     
     public void checkFile(String file){
@@ -41,9 +48,14 @@ public class BeardSyntaxChecker {
         if(aToZChecker()){
             System.out.println("No errors!");
         }
+        if(!patternThe()){
+            System.out.println("No errors!");
+        }
+        
+        
     }
     
-    public boolean aToZChecker(){
+    private boolean aToZChecker(){
         Iterator it = fileData.iterator();
         Stack<Character> azStack = new Stack();
         int lineNo = 1;
@@ -59,8 +71,7 @@ public class BeardSyntaxChecker {
                     }
                     else{
                         isError = true;
-                        System.out.println("Encountered z before a at line " + lineNo);
-                        System.out.println("Terminating a-z error check.");
+                        System.out.println("Line " + lineNo + ": \'z\' before preceding \'a\'");
                     }
                 }
                 if(lineChar == 'a'){
@@ -82,6 +93,129 @@ public class BeardSyntaxChecker {
             return false;
         }
     }
+    
+    public boolean patternThe(){
+        int lineNo = 1;
+        boolean containsErrors = false;
+        
+        for(String fileLine : fileData){
+            Stack<Character> theStack = new Stack();
+            Stack<Character> argStack = new Stack();
+            fileLine = fileLine.toLowerCase();
+            boolean theInStack = false;
+            
+            for(int i = 0; i < fileLine.length(); i++){
+                char argStackTop;
+                char theStackTop;
+                char lineChar = fileLine.charAt(i);
+                
+                if(theStack.empty()){
+                    //show empty stack without throwing exception.
+                    theStackTop = ' ';
+                }
+                else{
+                    theStackTop = theStack.peek();
+                }
+                if(argStack.empty()){
+                    argStackTop = ' ';
+                }
+                else{
+                    argStackTop = argStack.peek();
+                }
+                
+                if(!Character.isWhitespace(lineChar)){
+                    if(theInStack){
+                        if(Character.isLetter(lineChar) && argStackTop == ' '){
+                            argStack.push(lineChar);
+                        }
+                        if(!Character.isLetter(lineChar) && argStackTop == ' '){
+                            System.out.println("Line " + lineNo + 
+                                    ": Pattern \"the\" without proper arguments.");
+                            theStack.clear();
+                            argStack.clear();
+                            theInStack = false;
+                            containsErrors = true;
+                        }
+                        if(Character.isDigit(lineChar) && 
+                                Character.isLetter(argStackTop)){
+                            argStack.push(lineChar);
+                        }
+                        if(!Character.isDigit(lineChar) && 
+                                Character.isLetter(argStackTop)){
+                            System.out.println("Line " + lineNo + 
+                                    ": Pattern \"the\" without proper arguments.");
+                            theStack.clear();
+                            argStack.clear();
+                            theInStack = false;
+                            containsErrors = true;
+                        }
+                        if(isLegalSymbol(lineChar) && 
+                                Character.isDigit(argStackTop)){
+                            argStack.push(lineChar);
+                        }
+                        if(!isLegalSymbol(lineChar) && 
+                                Character.isDigit(argStackTop)){
+                            System.out.println("Line " + lineNo + 
+                                    ": Pattern \"the\" without proper arguments.");
+                            theStack.clear();
+                            argStack.clear();
+                            theInStack = false;
+                            containsErrors = true;
+                        }
+                        if(Character.isDigit(lineChar) && 
+                                isLegalSymbol(argStackTop)){
+                            theStack.clear();
+                            argStack.clear();
+                            theInStack = false;
+                        }
+                        if(!Character.isDigit(lineChar) && 
+                                isLegalSymbol(argStackTop)){
+                            System.out.println("Line " + lineNo + 
+                                    ": Pattern \"the\" without proper arguments.");
+                            theStack.clear();
+                            argStack.clear();
+                            theInStack = false;
+                            containsErrors = true;
+                        }
+                        
+                    }
+                    else{
+                        if(lineChar == 't'){
+                            theStack.push(lineChar);
+                        }
+                        if(lineChar == 'h' && theStackTop == 't'){
+                            theStack.push(lineChar);
+                        }
+                        if(lineChar != 'h' && theStackTop == 't'){
+                            theStack.clear();
+                        }
+                        if(lineChar == 'e' && theStackTop == 'h'){
+                            theStack.push(lineChar);
+                            theInStack = true;
+                        }
+                        if(lineChar != 'e' && theStackTop == 'h'){
+                            theStack.clear();
+                        }
+                    }
+                }
+            }
+            lineNo++;
+        }
+        return containsErrors;
+    }
+    
+    public boolean isLegalSymbol(char checkChar){
+        
+        boolean isLegal = false;
+        for(int i = 0; i < legalSymbols.length; i++){
+            if(checkChar == legalSymbols[i]){
+                isLegal = true;
+            }
+        }
+        return isLegal;
+    }
+        
+       
     
     public String toString(){
         Iterator it = fileData.iterator(); 
