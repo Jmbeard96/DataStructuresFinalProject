@@ -74,7 +74,7 @@ public class BeardSyntaxChecker {
                     }
                     else{
                         isError = true;
-                        System.out.println("Line " + lineNo + ": \'z\' before preceding \'a\'");
+                        System.out.println(errorMessage(ErrorType.ATOZ, lineNo));
                     }
                 }
                 if(lineChar == 'a'){

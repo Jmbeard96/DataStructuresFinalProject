@@ -17,7 +17,7 @@ public class BeardSyntaxCheckerClient {
     public static void main(String[] args) {
         BeardSyntaxChecker sc = new BeardSyntaxChecker();
         
-        sc.checkFile("C:\\Users\\Jeremy Beard\\Desktop\\test.txt");
+        sc.checkFile("/Users/jeremybeard/Desktop/test.txt");
         //System.out.println(sc.toString());
         
     }
