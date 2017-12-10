@@ -126,74 +126,110 @@ public class BeardSyntaxChecker {
                     argStackTop = argStack.peek();
                 }
                 
+                //Ignoring whitespace
                 if(!Character.isWhitespace(lineChar)){
-                    if(theInStack){
-                        if(Character.isLetter(lineChar) && argStackTop == ' '){
-                            argStack.push(lineChar);
-                        }
-                        if(!Character.isLetter(lineChar) && argStackTop == ' '){
-                            System.out.println(errorMessage(ErrorType.PATTERNTHE, lineNo));
-                            theStack.clear();
-                            argStack.clear();
-                            theInStack = false;
-                            containsErrors = true;
-                        }
-                        if(Character.isDigit(lineChar) && 
-                                Character.isLetter(argStackTop)){
-                            argStack.push(lineChar);
-                        }
-                        if(!Character.isDigit(lineChar) && 
-                                Character.isLetter(argStackTop)){
-                            System.out.println(errorMessage(ErrorType.PATTERNTHE, lineNo));
-                            theStack.clear();
-                            argStack.clear();
-                            theInStack = false;
-                            containsErrors = true;
-                        }
-                        if(isLegalSymbol(lineChar) && 
-                                Character.isDigit(argStackTop)){
-                            argStack.push(lineChar);
-                        }
-                        if(!isLegalSymbol(lineChar) && 
-                                Character.isDigit(argStackTop)){
-                            System.out.println(errorMessage(ErrorType.PATTERNTHE, lineNo));
-                            theStack.clear();
-                            argStack.clear();
-                            theInStack = false;
-                            containsErrors = true;
-                        }
-                        if(Character.isDigit(lineChar) && 
-                                isLegalSymbol(argStackTop)){
-                            theStack.clear();
-                            argStack.clear();
-                            theInStack = false;
-                        }
-                        if(!Character.isDigit(lineChar) && 
-                                isLegalSymbol(argStackTop)){
-                            System.out.println(errorMessage(ErrorType.PATTERNTHE, lineNo));
-                            theStack.clear();
-                            argStack.clear();
-                            theInStack = false;
-                            containsErrors = true;
-                        }
+                    
+                    //If pattern "the" has not benn found.
+                    if(!theInStack){
                         
-                    }
-                    else{
+                        //Find pattern "the".
                         if(lineChar == 't'){
                             theStack.push(lineChar);
                         }
-                        if(lineChar == 'h' && theStackTop == 't'){
-                            theStack.push(lineChar);
+                        if(theStackTop == 't'){
+                            if(lineChar == 'h'){
+                                theStack.push(lineChar);
+                            }
+                            else{
+                                //Conditions for pattern "the" not met. 
+                                //Reset stack.
+                                theStack.clear();
+                            }
                         }
-                        if(lineChar != 'h' && theStackTop == 't'){
-                            theStack.clear();
+                        if(theStackTop == 'h'){
+                            if(lineChar == 'e'){
+                                //Conditions for pattern "the" met.
+                                //Begin search for necessary arguments on next
+                                //iteration.
+                                theInStack = true;
+                            }
+                            else{
+                                //Conditions for pattern "the" not met. 
+                                //Reset stack.
+                                theStack.clear();
+                            }
                         }
-                        if(lineChar == 'e' && theStackTop == 'h'){
-                            theStack.push(lineChar);
-                            theInStack = true;
+                    }
+                    
+                    //If pattern "the" has been found.
+                    else{
+                        
+                        //Search for necessary arguments.
+                        if(argStackTop == ' '){
+                            if(Character.isLetter(lineChar)){
+                                argStack.push(lineChar);
+                            }
+                            else{
+                                //Arguments for pattern "the" not met.
+                                //Print message and reset stacks.
+                                System.out.println(errorMessage(
+                                        ErrorType.PATTERNTHE, lineNo));
+                                theStack.clear();
+                                argStack.clear();
+                                theInStack = false;
+                                containsErrors = true;
+                            }
                         }
-                        if(lineChar != 'e' && theStackTop == 'h'){
-                            theStack.clear();
+                        
+                        if(Character.isLetter(argStackTop)){
+                            if(Character.isDigit(lineChar)){
+                                argStack.push(lineChar);
+                            }
+                            else{
+                                //Arguments for pattern "the" not met.
+                                //Print message and reset stacks.
+                                System.out.println(errorMessage(
+                                        ErrorType.PATTERNTHE, lineNo));
+                                theStack.clear();
+                                argStack.clear();
+                                theInStack = false;
+                                containsErrors = true;
+                            }
+                        }
+                        
+                        if(Character.isDigit(argStackTop)){
+                            if(isLegalSymbol(lineChar)){
+                                argStack.push(lineChar);
+                            }
+                            else{
+                                //Arguments for pattern "the" not met.
+                                //Print message and reset stacks.
+                                System.out.println(errorMessage(
+                                        ErrorType.PATTERNTHE, lineNo));
+                                theStack.clear();
+                                argStack.clear();
+                                theInStack = false;
+                                containsErrors = true;
+                            }
+                        }
+                        
+                        if(isLegalSymbol(argStackTop)){
+                            if(Character.isDigit(lineChar)){
+                                //All arguments met. Reset stacks.
+                                theStack.clear();
+                                argStack.clear();
+                                theInStack = false;
+                            }
+                            else{
+                                //Arguments for pattern "the" not met.
+                                //Print message and reset stacks.
+                                System.out.println(errorMessage(
+                                        ErrorType.PATTERNTHE, lineNo));
+                                theStack.clear();
+                                argStack.clear();
+                                theInStack = false;
+                                containsErrors = true;
+                            }
                         }
                     }
                 }
