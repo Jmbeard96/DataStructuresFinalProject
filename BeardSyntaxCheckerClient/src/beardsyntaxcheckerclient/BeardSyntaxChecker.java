@@ -8,6 +8,7 @@ package beardsyntaxcheckerclient;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.ListIterator;
 import java.util.Scanner;
 import java.util.Stack;
 
@@ -54,6 +55,7 @@ public class BeardSyntaxChecker {
         if(!patternThe()){
             System.out.println("No errors!");
         }
+        nextFiveLines();
         
         
     }
@@ -97,7 +99,7 @@ public class BeardSyntaxChecker {
         }
     }
     
-    public boolean patternThe(){
+    private boolean patternThe(){
         int lineNo = 1;
         boolean containsErrors = false;
         
@@ -240,6 +242,49 @@ public class BeardSyntaxChecker {
         return containsErrors;
     }
     
+    private boolean nextFiveLines(){
+        ArrayList<String> fileDataCopy = new ArrayList();
+        fileDataCopy.addAll(fileData);
+        ListIterator fileIt = fileDataCopy.listIterator();
+        int firstCharLineNo = 1;
+       
+        while (fileIt.hasNext()){
+            String fileLine = (String)fileIt.next();
+            fileLine = fileLine.toLowerCase();
+            int itIndex = fileIt.nextIndex();
+            ListIterator it = fileDataCopy.listIterator(itIndex);
+            char necessaryChar = fileLine.charAt(0);
+            int count = 0;
+            int requiredCharLineNo = firstCharLineNo + 1;
+           
+            while(count < 5 && it.hasNext()){
+                boolean charFound = false;
+                String nextLine = (String)it.next();
+                nextLine = nextLine.toLowerCase();
+                for(int i = 0; i < 10 && i < nextLine.length(); i++){
+                    if(nextLine.charAt(i) == necessaryChar){
+                        charFound = true;
+                        break;
+                    }
+                }
+                    
+                    if(!charFound){
+                        //print error
+                        System.out.println("Line " + firstCharLineNo + 
+                                ": Begins with \'" + necessaryChar + "\'. Line " +
+                                requiredCharLineNo + " does not have a \'" +
+                                necessaryChar + "\' in the first ten characters.");
+                    }
+                    count++;
+                    requiredCharLineNo++;
+                }
+                firstCharLineNo++;
+            }
+        
+        
+        return true;
+    }
+    
     private boolean isLegalSymbol(char checkChar){
         
         boolean isLegal = false;
@@ -250,6 +295,8 @@ public class BeardSyntaxChecker {
         }
         return isLegal;
     }
+    
+    
         
     private String errorMessage(ErrorType errorType, int lineNo){
         String returnString = "";
