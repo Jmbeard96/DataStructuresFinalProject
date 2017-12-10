@@ -105,7 +105,7 @@ public class BeardSyntaxChecker {
             Stack<Character> theStack = new Stack();
             Stack<Character> argStack = new Stack();
             fileLine = fileLine.toLowerCase();
-            boolean theInStack = false;
+            boolean patternFound = false;
             
             for(int i = 0; i < fileLine.length(); i++){
                 char argStackTop;
@@ -120,6 +120,7 @@ public class BeardSyntaxChecker {
                     theStackTop = theStack.peek();
                 }
                 if(argStack.empty()){
+                    //show empty stack without throwing exception.
                     argStackTop = ' ';
                 }
                 else{
@@ -130,7 +131,7 @@ public class BeardSyntaxChecker {
                 if(!Character.isWhitespace(lineChar)){
                     
                     //If pattern "the" has not benn found.
-                    if(!theInStack){
+                    if(!patternFound){
                         
                         //Find pattern "the".
                         if(lineChar == 't'){
@@ -151,7 +152,7 @@ public class BeardSyntaxChecker {
                                 //Conditions for pattern "the" met.
                                 //Begin search for necessary arguments on next
                                 //iteration.
-                                theInStack = true;
+                                patternFound = true;
                             }
                             else{
                                 //Conditions for pattern "the" not met. 
@@ -171,12 +172,12 @@ public class BeardSyntaxChecker {
                             }
                             else{
                                 //Arguments for pattern "the" not met.
-                                //Print message and reset stacks.
+                                //Print message and reset variables.
                                 System.out.println(errorMessage(
                                         ErrorType.PATTERNTHE, lineNo));
                                 theStack.clear();
                                 argStack.clear();
-                                theInStack = false;
+                                patternFound = false;
                                 containsErrors = true;
                             }
                         }
@@ -187,12 +188,12 @@ public class BeardSyntaxChecker {
                             }
                             else{
                                 //Arguments for pattern "the" not met.
-                                //Print message and reset stacks.
+                                //Print message and reset variables.
                                 System.out.println(errorMessage(
                                         ErrorType.PATTERNTHE, lineNo));
                                 theStack.clear();
                                 argStack.clear();
-                                theInStack = false;
+                                patternFound = false;
                                 containsErrors = true;
                             }
                         }
@@ -203,12 +204,12 @@ public class BeardSyntaxChecker {
                             }
                             else{
                                 //Arguments for pattern "the" not met.
-                                //Print message and reset stacks.
+                                //Print message and reset variables.
                                 System.out.println(errorMessage(
                                         ErrorType.PATTERNTHE, lineNo));
                                 theStack.clear();
                                 argStack.clear();
-                                theInStack = false;
+                                patternFound = false;
                                 containsErrors = true;
                             }
                         }
@@ -218,16 +219,16 @@ public class BeardSyntaxChecker {
                                 //All arguments met. Reset stacks.
                                 theStack.clear();
                                 argStack.clear();
-                                theInStack = false;
+                                patternFound = false;
                             }
                             else{
                                 //Arguments for pattern "the" not met.
-                                //Print message and reset stacks.
+                                //Print message and reset variables.
                                 System.out.println(errorMessage(
                                         ErrorType.PATTERNTHE, lineNo));
                                 theStack.clear();
                                 argStack.clear();
-                                theInStack = false;
+                                patternFound = false;
                                 containsErrors = true;
                             }
                         }
@@ -239,7 +240,7 @@ public class BeardSyntaxChecker {
         return containsErrors;
     }
     
-    public boolean isLegalSymbol(char checkChar){
+    private boolean isLegalSymbol(char checkChar){
         
         boolean isLegal = false;
         for(int i = 0; i < legalSymbols.length; i++){
@@ -250,7 +251,7 @@ public class BeardSyntaxChecker {
         return isLegal;
     }
         
-    public String errorMessage(ErrorType errorType, int lineNo){
+    private String errorMessage(ErrorType errorType, int lineNo){
         String returnString = "";
         
         switch(errorType){
