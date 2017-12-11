@@ -15,10 +15,11 @@ public class BeardSyntaxCheckerClient {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        BeardSyntaxChecker sc = new BeardSyntaxChecker("/Users/jeremybeard/Desktop/test.txt");
-        
+        BeardSyntaxChecker sc = new BeardSyntaxChecker("/Users/jeremybeard/Desktop/test.txt",
+                "/Users/jeremybeard/Desktop/testErrorLog.txt");
+
         sc.checkFile();
-        
+
     }
-    
+
 }
