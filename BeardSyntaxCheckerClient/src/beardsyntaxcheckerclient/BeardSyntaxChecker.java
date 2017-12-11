@@ -326,41 +326,41 @@ public class BeardSyntaxChecker {
             char necessaryChar;
             if (fileLine.length() > 0) {
                 necessaryChar = fileLine.charAt(0);
-            } else {
-                necessaryChar = ' ';
-            }
-            int count = 0;
+            
+                int count = 0;
 
-            //Line number of the next five lines after the line with required 
-            //character.
-            int requiredCharLineNo = firstCharLineNo + 1;
+                //Line number of the next five lines after the line with required 
+                //character.
+                int requiredCharLineNo = firstCharLineNo + 1;
 
-            while (count < 5 && it.hasNext()) {
-                boolean charFound = false;
+                while (count < 5 && it.hasNext()) {
+                    boolean charFound = false;
 
-                //Move second iterator to line after first iterator
-                String nextLine = (String) it.next();
+                    //Move second iterator to line after first iterator
+                    String nextLine = (String) it.next();
+                    if (nextLine.length() > 0){
+                        //Ignoring case
+                        nextLine = nextLine.toLowerCase();
 
-                //Ignoring case
-                nextLine = nextLine.toLowerCase();
+                        for (int i = 0; i < 10 && i < nextLine.length(); i++) {
+                            if (nextLine.charAt(i) == necessaryChar) {
+                                charFound = true;
 
-                for (int i = 0; i < 10 && i < nextLine.length(); i++) {
-                    if (nextLine.charAt(i) == necessaryChar) {
-                        charFound = true;
+                                //Exit for loop as soon as character is found.
+                                break;
+                            }
+                        }
 
-                        //Exit for loop as soon as character is found.
-                        break;
+                        if (!charFound) {
+                            isError = true;
+                            //print error
+                            System.out.println(errorMessage(firstCharLineNo,
+                                    requiredCharLineNo, necessaryChar));
+                        }
+                        count++;
+                        requiredCharLineNo++;
                     }
                 }
-
-                if (!charFound) {
-                    isError = true;
-                    //print error
-                    System.out.println(errorMessage(firstCharLineNo,
-                            requiredCharLineNo, necessaryChar));
-                }
-                count++;
-                requiredCharLineNo++;
             }
             firstCharLineNo++;
         }
