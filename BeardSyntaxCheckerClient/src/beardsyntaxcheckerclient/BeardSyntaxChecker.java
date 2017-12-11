@@ -7,7 +7,6 @@ package beardsyntaxcheckerclient;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.Scanner;
 import java.util.Stack;
@@ -27,6 +26,11 @@ public class BeardSyntaxChecker {
         ATOZ, PATTERNTHE, ILLEGALSYMBOL
     }
 
+    /**
+     * @description Constructor instantiates all instance variables.
+     * @param inputFilePath
+     * @param outputFilePath
+     */
     public BeardSyntaxChecker(String inputFilePath, String outputFilePath) {
         inputFile = new File(inputFilePath);
         outputFile = new File(outputFilePath);
@@ -52,11 +56,7 @@ public class BeardSyntaxChecker {
 
         try {
             try (FileWriter writer = new FileWriter(outputFile)) {
-                int lineNo = 1;
-                for (String fileLine : fileData) {
-                    writer.write(lineNo + ": " + fileLine + '\n');
-                    lineNo++;
-                }
+                writer.write(toString());
                 writer.write("\n\n\nErrors:\n");
             }
         } catch (IOException e) {
@@ -65,35 +65,41 @@ public class BeardSyntaxChecker {
     }
 
     /**
-     * @Description Attempts to open file and read the data into ArrayList
-     * instance variable fileData. Calls error checking methods to check syntax
-     * of file
+     * @Description Calls error checking methods to check syntax of file
+     * represented by ArrayList fileData
      */
     public void checkFile() {
         boolean errorsFound = false;
-        if (!illegalSymbol()) {
+        if (illegalSymbol()) {
             errorsFound = true;
         }
-        if (!aToZChecker()) {
+        if (aToZChecker()) {
             errorsFound = true;
         }
-        if (!patternThe()) {
+        if (patternThe()) {
             errorsFound = true;
         }
-        if (!nextFiveLines()) {
+        if (nextFiveLines()) {
             errorsFound = true;
         }
-        try {
-            try (FileWriter writer = new FileWriter(outputFile, true)) {
-                writer.append("No errors detected.");
+        if (!errorsFound) {
+            try {
+                try (FileWriter writer = new FileWriter(outputFile, true)) {
+                    writer.append("No errors detected.");
+                }
+            } catch (IOException e) {
+                System.out.println(e);
             }
-        } catch (IOException e) {
-            System.out.println(e);
         }
     }
 
+    /**
+     * @description Checks ArrayList for use of illegal symbols.(Those that are
+     * not digits, letters, or legal symbols defined in the array legalSymbols)
+     * @return true if error was detected.
+     */
     private boolean illegalSymbol() {
-        boolean containsErrors = false;
+        boolean isError = false;
         int lineNo = 1;
 
         for (String fileLine : fileData) {
@@ -104,7 +110,7 @@ public class BeardSyntaxChecker {
                     if (!Character.isLetter(charToCheck)) {
                         if (!Character.isDigit(charToCheck)) {
                             if (!isLegalSymbol(charToCheck)) {
-                                containsErrors = true;
+                                isError = true;
                                 System.out.println(
                                         errorMessage(ErrorType.ILLEGALSYMBOL,
                                                 lineNo, charToCheck));
@@ -116,12 +122,12 @@ public class BeardSyntaxChecker {
             lineNo++;
         }
 
-        return !containsErrors;
+        return isError;
     }
 
     /**
-     * @Description Checks ArrayList for balanced a's and z's
-     * @return true if no errors were detected.
+     * @description Checks ArrayList for balanced a's and z's
+     * @return true if error was detected.
      */
     private boolean aToZChecker() {
         ListIterator listIt = fileData.listIterator();
@@ -154,17 +160,17 @@ public class BeardSyntaxChecker {
         }
 
         //return true if no errors were found.
-        return !isError;
+        return isError;
     }
 
     /**
-     * @Description Checks ArrayList against specified pattern involving the
+     * @description Checks ArrayList against specified pattern involving the
      * word "the"
-     * @return true if no errors were found
+     * @return true if error was detected.
      */
     private boolean patternThe() {
         int lineNo = 1;
-        boolean containsErrors = false;
+        boolean isError = false;
 
         for (String fileLine : fileData) {
             Stack<Character> theStack = new Stack();
@@ -237,11 +243,9 @@ public class BeardSyntaxChecker {
                                 theStack.clear();
                                 argStack.clear();
                                 patternFound = false;
-                                containsErrors = true;
+                                isError = true;
                             }
-                        }
-
-                        else if (Character.isLetter(argStackTop)) {
+                        } else if (Character.isLetter(argStackTop)) {
                             if (Character.isDigit(lineChar)) {
                                 argStack.push(lineChar);
                             } else {
@@ -252,11 +256,9 @@ public class BeardSyntaxChecker {
                                 theStack.clear();
                                 argStack.clear();
                                 patternFound = false;
-                                containsErrors = true;
+                                isError = true;
                             }
-                        }
-
-                        else if (Character.isDigit(argStackTop)) {
+                        } else if (Character.isDigit(argStackTop)) {
                             if (isLegalSymbol(lineChar)) {
                                 argStack.push(lineChar);
                             } else {
@@ -267,11 +269,9 @@ public class BeardSyntaxChecker {
                                 theStack.clear();
                                 argStack.clear();
                                 patternFound = false;
-                                containsErrors = true;
+                                isError = true;
                             }
-                        }
-
-                        else if (isLegalSymbol(argStackTop)) {
+                        } else if (isLegalSymbol(argStackTop)) {
                             if (Character.isDigit(lineChar)) {
                                 //All arguments met. Reset stacks.
                                 theStack.clear();
@@ -285,7 +285,7 @@ public class BeardSyntaxChecker {
                                 theStack.clear();
                                 argStack.clear();
                                 patternFound = false;
-                                containsErrors = true;
+                                isError = true;
                             }
                         }
                     }
@@ -294,16 +294,16 @@ public class BeardSyntaxChecker {
             lineNo++;
         }
         //return true if no errors were found.
-        return !containsErrors;
+        return isError;
     }
 
     /**
-     * @Description Checks ArrayList so that each element's first character is
+     * @description Checks ArrayList so that each element's first character is
      * contained in the next five elements' first ten characters.
-     * @return true if no errors were found.
+     * @return true if error was detected.
      */
     private boolean nextFiveLines() {
-        boolean errorsDetected = false;
+        boolean isError = false;
 
         //Create ListIterator to keep track of first char of each line.
         ListIterator fileIt = fileData.listIterator();
@@ -323,7 +323,12 @@ public class BeardSyntaxChecker {
 
             //The character that must be in the first ten characters of the next 
             //five lines
-            char necessaryChar = fileLine.charAt(0);
+            char necessaryChar;
+            if (fileLine.length() > 0) {
+                necessaryChar = fileLine.charAt(0);
+            } else {
+                necessaryChar = ' ';
+            }
             int count = 0;
 
             //Line number of the next five lines after the line with required 
@@ -349,7 +354,7 @@ public class BeardSyntaxChecker {
                 }
 
                 if (!charFound) {
-                    errorsDetected = true;
+                    isError = true;
                     //print error
                     System.out.println(errorMessage(firstCharLineNo,
                             requiredCharLineNo, necessaryChar));
@@ -361,9 +366,14 @@ public class BeardSyntaxChecker {
         }
 
         //return true if no errors were detected.
-        return !errorsDetected;
+        return isError;
     }
 
+    /**
+     * @description Checks param checkChar against array legalSymbols.
+     * @param checkChar Character to check.
+     * @return true if param checkChar is legal
+     */
     private boolean isLegalSymbol(char checkChar) {
 
         boolean isLegal = false;
@@ -375,6 +385,13 @@ public class BeardSyntaxChecker {
         return isLegal;
     }
 
+    /**
+     * @description Generates error message for aToZChecker and writes it to the
+     * output file.
+     * @param lineNo Line number on which error occurred.
+     * @param remainingZs Number of z's necessary to balance with a's
+     * @return String containing error message
+     */
     private String errorMessage(int lineNo, int remainingZs) {
         String returnString;
         if (remainingZs > 1) {
@@ -395,7 +412,8 @@ public class BeardSyntaxChecker {
     }
 
     /**
-     *
+     * @description Generates error message for nextFiveLines and writes it to
+     * the output file.
      * @param firstLineNo Line number of elements whose first character must be
      * within next five elements' first ten characters.
      * @param secondLineNo Line number of five succeeding elements
@@ -405,7 +423,7 @@ public class BeardSyntaxChecker {
      */
     private String errorMessage(int firstLineNo, int secondLineNo, char necChar) {
         String returnString = "Line " + firstLineNo + ": Begins with \'" + necChar + "\'. Line "
-                + secondLineNo + " does not have a \'" + necChar + "\' in the "
+                + secondLineNo + " does not have \'" + necChar + "\' in the "
                 + "first ten characters.";
         try {
             try (FileWriter writer = new FileWriter(outputFile, true)) {
@@ -419,7 +437,8 @@ public class BeardSyntaxChecker {
     }
 
     /**
-     *
+     * @description Generates error message for corresponding error type and
+     * writes it to output file.
      * @param errorType
      * @param lineNo Line on which the error occurred
      * @return String containing error message for specified error type.
@@ -456,10 +475,11 @@ public class BeardSyntaxChecker {
      */
     @Override
     public String toString() {
-        Iterator it = fileData.iterator();
         String printString = "";
-        while (it.hasNext()) {
-            printString += ((String) it.next() + '\n');
+        int lineNo = 1;
+        for (String fileLine : fileData) {
+            printString += (lineNo + ": " + fileLine + '\n');
+            lineNo++;
         }
         return printString;
     }

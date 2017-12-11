@@ -5,6 +5,8 @@
  */
 package beardsyntaxcheckerclient;
 
+import java.util.Scanner;
+
 /**
  *
  * @author Jeremy Beard
@@ -15,8 +17,19 @@ public class BeardSyntaxCheckerClient {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        BeardSyntaxChecker sc = new BeardSyntaxChecker("/Users/jeremybeard/Desktop/test.txt",
-                "/Users/jeremybeard/Desktop/testErrorLog.txt");
+
+        Scanner scan = new Scanner(System.in);
+
+        String inputFile;
+        String outputFile;
+
+        System.out.println("Enter file path for the file you'd like to check.");
+        inputFile = scan.nextLine();
+        System.out.println("Enter file path for the file to which you'd like to"
+                + " write any errors.");
+        outputFile = scan.nextLine();
+
+        BeardSyntaxChecker sc = new BeardSyntaxChecker(inputFile, outputFile);
 
         sc.checkFile();
 
