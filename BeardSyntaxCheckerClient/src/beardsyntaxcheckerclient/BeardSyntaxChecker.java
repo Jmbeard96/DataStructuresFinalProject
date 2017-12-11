@@ -83,12 +83,11 @@ public class BeardSyntaxChecker {
         if (!nextFiveLines()) {
             errorsFound = true;
         }
-        try{
+        try {
             try (FileWriter writer = new FileWriter(outputFile, true)) {
                 writer.append("No errors detected.");
             }
-        }
-        catch(IOException e){
+        } catch (IOException e) {
             System.out.println(e);
         }
     }
@@ -125,13 +124,13 @@ public class BeardSyntaxChecker {
      * @return true if no errors were detected.
      */
     private boolean aToZChecker() {
-        Iterator it = fileData.iterator();
+        ListIterator listIt = fileData.listIterator();
         Stack<Character> azStack = new Stack();
         int lineNo = 1;
         boolean isError = false;
 
-        while (it.hasNext() && !isError) {
-            String line = (String) it.next();
+        while (listIt.hasNext() && !isError) {
+            String line = (String) listIt.next();
             for (int i = 0; i < line.length() && !isError; i++) {
                 char lineChar = line.charAt(i);
                 if (lineChar == 'z') {
@@ -177,17 +176,17 @@ public class BeardSyntaxChecker {
                 char argStackTop;
                 char theStackTop;
                 char lineChar = fileLine.charAt(i);
-                char noChar = Character.MIN_VALUE;
+                char sentinelChar = Character.MIN_VALUE;
 
                 if (theStack.empty()) {
                     //show empty stack without throwing exception.
-                    theStackTop = noChar;
+                    theStackTop = sentinelChar;
                 } else {
                     theStackTop = theStack.peek();
                 }
                 if (argStack.empty()) {
                     //show empty stack without throwing exception.
-                    argStackTop = noChar;
+                    argStackTop = sentinelChar;
                 } else {
                     argStackTop = argStack.peek();
                 }
@@ -227,14 +226,14 @@ public class BeardSyntaxChecker {
                     else {
 
                         //Search for necessary arguments.
-                        if (argStackTop == noChar) {
+                        if (argStackTop == sentinelChar) {
                             if (Character.isLetter(lineChar)) {
                                 argStack.push(lineChar);
                             } else {
                                 //Arguments for pattern "the" not met.
                                 //Print message and reset variables.
                                 System.out.println(errorMessage(
-                                        ErrorType.PATTERNTHE, lineNo, noChar));
+                                        ErrorType.PATTERNTHE, lineNo, sentinelChar));
                                 theStack.clear();
                                 argStack.clear();
                                 patternFound = false;
@@ -242,14 +241,14 @@ public class BeardSyntaxChecker {
                             }
                         }
 
-                        if (Character.isLetter(argStackTop)) {
+                        else if (Character.isLetter(argStackTop)) {
                             if (Character.isDigit(lineChar)) {
                                 argStack.push(lineChar);
                             } else {
                                 //Arguments for pattern "the" not met.
                                 //Print message and reset variables.
                                 System.out.println(errorMessage(
-                                        ErrorType.PATTERNTHE, lineNo, noChar));
+                                        ErrorType.PATTERNTHE, lineNo, sentinelChar));
                                 theStack.clear();
                                 argStack.clear();
                                 patternFound = false;
@@ -257,14 +256,14 @@ public class BeardSyntaxChecker {
                             }
                         }
 
-                        if (Character.isDigit(argStackTop)) {
+                        else if (Character.isDigit(argStackTop)) {
                             if (isLegalSymbol(lineChar)) {
                                 argStack.push(lineChar);
                             } else {
                                 //Arguments for pattern "the" not met.
                                 //Print message and reset variables.
                                 System.out.println(errorMessage(
-                                        ErrorType.PATTERNTHE, lineNo, noChar));
+                                        ErrorType.PATTERNTHE, lineNo, sentinelChar));
                                 theStack.clear();
                                 argStack.clear();
                                 patternFound = false;
@@ -272,7 +271,7 @@ public class BeardSyntaxChecker {
                             }
                         }
 
-                        if (isLegalSymbol(argStackTop)) {
+                        else if (isLegalSymbol(argStackTop)) {
                             if (Character.isDigit(lineChar)) {
                                 //All arguments met. Reset stacks.
                                 theStack.clear();
@@ -282,7 +281,7 @@ public class BeardSyntaxChecker {
                                 //Arguments for pattern "the" not met.
                                 //Print message and reset variables.
                                 System.out.println(errorMessage(
-                                        ErrorType.PATTERNTHE, lineNo, noChar));
+                                        ErrorType.PATTERNTHE, lineNo, sentinelChar));
                                 theStack.clear();
                                 argStack.clear();
                                 patternFound = false;
